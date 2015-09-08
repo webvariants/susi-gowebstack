@@ -1,5 +1,5 @@
 # susi-gowebstack
-This is a webstack to provide an HTTP server to the [SUSI](https://github.com/webvariants/susi)
+This is a webstack to provide an HTTP server to the [SUSI](https://github.com/webvariants/susi) ecosystem.
 ## Installation
 To install just use the go command:
 ```
@@ -37,6 +37,9 @@ It implements the level-1 SUSI protocol, therefore the structure of a valid webs
 	}
 }
 ``` 
+
+There are three valid "type"'s: publish, register and unregister. The "topic" field in the "data" field is mandatory for all of the types.
+If you publish an event, you will get an packet with type "ack", which signales that the eventprocessing finished. If you "register" for an topic you will get a packet with type "event".
 
 ## Contributing
 1. Fork it!
