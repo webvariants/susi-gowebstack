@@ -258,6 +258,7 @@ func websocketHandler(ws *websocket.Conn) {
 }
 
 func redirectToIndex(w http.ResponseWriter, r *http.Request) {
+	sessionHandling(w, r)
 	http.Redirect(w, r, "/assets/index.html", 301)
 }
 
