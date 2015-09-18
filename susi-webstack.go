@@ -159,7 +159,11 @@ func websocketHandler(ws *websocket.Conn) {
 
 	for {
 		msg := websocketMessage{}
-		decoder.Decode(&msg)
+		err := decoder.Decode(&msg)
+		if err != nil {
+			log.Println("lost websocket connection")
+			break
+		}
 		switch msg.Type {
 		case "publish":
 			{
