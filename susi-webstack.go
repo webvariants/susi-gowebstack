@@ -25,6 +25,7 @@ var susiaddr = flag.String("susiaddr", "localhost:4000", "susiaddr to use")
 var webaddr = flag.String("webaddr", ":8080", "webaddr to use")
 var assetDir = flag.String("assets", "./assets", "asset dir to use")
 var uploadDir = flag.String("uploads", "./uploads", "upload dir to use")
+var useHTTPS = flag.Bool("https", false, "whether to use https or not")
 
 var susi *susigo.Susi
 var sessionStore = sessions.NewCookieStore([]byte("my-very-secret-cookie-encryption-key"))
@@ -282,5 +283,9 @@ func main() {
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(*assetDir))))
 	http.HandleFunc("/", redirectToIndex)
 	log.Printf("starting http server on %v...", *webaddr)
-	log.Fatal(http.ListenAndServe(*webaddr, context.ClearHandler(http.DefaultServeMux)))
+	if *useHTTPS {
+		log.Fatal(http.ListenAndServeTLS(*webaddr, *cert, *key, context.ClearHandler(http.DefaultServeMux)))
+	} else {
+		log.Fatal(http.ListenAndServe(*webaddr, context.ClearHandler(http.DefaultServeMux)))
+	}
 }
