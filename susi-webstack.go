@@ -104,7 +104,7 @@ func publishHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("you MUST specify at least a topic for your event"))
 		return
 	}
-	evt.SessionId = id
+	evt.SessionID = id
 	ready := make(chan bool)
 
 	susi.Publish(evt, func(evt *susigo.Event) {
@@ -168,7 +168,7 @@ func websocketHandler(ws *websocket.Conn) {
 		switch msg.Type {
 		case "publish":
 			{
-				msg.Data.SessionId = id
+				msg.Data.SessionID = id
 				susi.Publish(msg.Data, func(evt *susigo.Event) {
 					packet := map[string]interface{}{
 						"type": "ack",
