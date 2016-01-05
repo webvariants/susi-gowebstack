@@ -280,11 +280,21 @@ func main() {
 	susi = s
 	log.Println("successfully create susi connection")
 	sessionTimeouts = make(map[string]time.Time)
-	http.HandleFunc("/publish", publishHandler)
-	http.HandleFunc("/upload", uploadHandler)
-	http.Handle("/ws", websocket.Handler(websocketHandler))
-	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(*assetDir))))
-	http.HandleFunc("/", redirectToIndex)
+
+	if *user == "" && *pass == "" {
+		http.HandleFunc("/publish", publishHandler)
+		http.HandleFunc("/upload", uploadHandler)
+		http.Handle("/ws", websocket.Handler(websocketHandler))
+		http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(*assetDir))))
+		http.HandleFunc("/", redirectToIndex)
+	} else {
+		http.HandleFunc("/publish", BasicAuth(publishHandler))
+		http.HandleFunc("/upload", BasicAuth(uploadHandler))
+		http.HandleFunc("/ws", BasicAuth(websocket.Handler(websocketHandler).ServeHTTP))
+		http.HandleFunc("/assets/", BasicAuth(http.StripPrefix("/assets/", http.FileServer(http.Dir(*assetDir))).ServeHTTP))
+		http.HandleFunc("/", BasicAuth(redirectToIndex))
+	}
+
 	log.Printf("starting http server on %v...", *webaddr)
 	if *useHTTPS {
 		log.Fatal(http.ListenAndServeTLS(*webaddr, *cert, *key, context.ClearHandler(http.DefaultServeMux)))
