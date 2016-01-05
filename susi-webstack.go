@@ -186,7 +186,8 @@ func websocketHandler(ws *websocket.Conn) {
 		case "register":
 			{
 				if _, ok := consumerIds[msg.Data.Topic]; !ok {
-					id, err := susi.RegisterConsumer(msg.Data.Topic, func(evt *susigo.Event) {
+					var registerID int64
+					registerID, err := susi.RegisterConsumer(msg.Data.Topic, func(evt *susigo.Event) {
 						packet := map[string]interface{}{
 							"type": "event",
 							"data": evt,
@@ -194,6 +195,7 @@ func websocketHandler(ws *websocket.Conn) {
 						err := encoder.Encode(packet)
 						if err != nil {
 							log.Printf("lost websocket client (error: %v)", err)
+							susi.UnregisterConsumer(registerID)
 							return
 						}
 					})
@@ -206,10 +208,11 @@ func websocketHandler(ws *websocket.Conn) {
 						err := encoder.Encode(packet)
 						if err != nil {
 							log.Printf("lost websocket client (error: %v)", err)
+							susi.UnregisterConsumer(registerID)
 							return
 						}
 					}
-					consumerIds[msg.Data.Topic] = id
+					consumerIds[msg.Data.Topic] = registerID
 				} else {
 					log.Printf("failed registering session %v to topic '%v' (%v)", id, msg.Data.Topic, "session already registered")
 					packet := map[string]interface{}{
